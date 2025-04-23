@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../style.css';
 import ninaAudio from '../assets/music/nina.mp3';
+import Particles from './Particles'; // Import Particles component
 
 const syncedLyrics = [
   { time: 2, text: "This is made for you"  },
@@ -73,7 +74,7 @@ const photoMessages = [
     "ILY"
   ];
   
-const TypewriterLyrics = () => {
+  const TypewriterLyrics = () => {
     const audioRef = useRef(null);
     const [currentLine, setCurrentLine] = useState('');
     const [typedText, setTypedText] = useState('');
@@ -91,6 +92,9 @@ const TypewriterLyrics = () => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [positions, setPositions] = useState({});
 const [openLetters, setOpenLetters] = useState({});
+const galleryRef = useRef(null);
+const [galleryActive, setGalleryActive] = useState(false);
+
 
 
   const handleDragStart = (e, index) => {
@@ -232,9 +236,17 @@ const [openLetters, setOpenLetters] = useState({});
             }
         };
     }, []);
+    useEffect(() => {
+      if (musicEnded) {
+          setGalleryActive(true);
+      }
+  }, [musicEnded]);
+  
 
     return (
-        <div className="container">
+      <div className="container" onClick={() => setShowButton(true)}>
+              <Particles particleCount={300} particleColors={['#ffffff', '#ffb6c1', '#add8e6']} speed={0.15} />
+
             <div className="wind-background"></div>
             {!startGame ? (
                 <>
@@ -251,8 +263,8 @@ const [openLetters, setOpenLetters] = useState({});
                     </button>
                 </>
             ) : musicEnded ? (
-<div className="gallery bouquet">
-  {[...Array(20)].map((_, i) => {
+<div className="gallery bouquet" ref={galleryRef}>
+{[...Array(20)].map((_, i) => {
     
     const radius = 300;
     const angle = (i / 19) * Math.PI;
@@ -274,7 +286,7 @@ const [openLetters, setOpenLetters] = useState({});
         }
       : {
           position: 'absolute',
-          top: '50%',
+          top: '10%',
           left: '50%',
           transform: `translate(${x}px, ${-y}px) rotate(${rotate}deg)`,
           zIndex: photoZ,
@@ -331,11 +343,12 @@ const [openLetters, setOpenLetters] = useState({});
                 </div>
             )}
 
-            {startGame && showButton && (
-                <button onClick={handlePlayPause} className="playButton">
-                    {isPlaying ? 'Pause' : 'Play'}
-                </button>
-            )}
+{startGame && showButton && !musicEnded && !galleryActive && (
+    <button onClick={handlePlayPause} className="playButton">
+        {isPlaying ? 'Pause' : 'Play'}
+    </button>
+)}
+
 
             <audio ref={audioRef}>
                 <source src={ninaAudio} type="audio/mp3" />
