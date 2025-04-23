@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../style.css';
 import ninaAudio from '../assets/music/nina.mp3';
 import Particles from './Particles'; // Import Particles component
+import FlowingMenu from './FlowingMenu'; // Import FlowingMenu component
 
 const syncedLyrics = [
   { time: 2, text: "This is made for you"  },
@@ -73,7 +74,28 @@ const photoMessages = [
     "Big dreams await 🌠",
     "ILY"
   ];
-  
+  const menuItems = [
+    {
+      text: "Photo Gallery",
+      link: "#gallery",
+      image: "/image/gallery-icon.jpg"
+    },
+    {
+      text: "Credits",
+      link: "#credits",
+      image: "/image/credits-icon.jpg"
+    },
+    {
+      text: "Play Again",
+      link: "#play-again",
+      image: "/image/play-icon.jpg"
+    },
+    {
+      text: "About",
+      link: "#about",
+      image: "/image/about-icon.jpg"
+    }
+  ];
   const TypewriterLyrics = () => {
     const audioRef = useRef(null);
     const [currentLine, setCurrentLine] = useState('');
@@ -88,54 +110,59 @@ const photoMessages = [
     const [showButton, setShowButton] = useState(true);
     const [musicEnded, setMusicEnded] = useState(false);
     const [topZIndex, setTopZIndex] = useState(10); // initial top zIndex
-  // 👉 Add draggable state + function HERE
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [positions, setPositions] = useState({});
-const [openLetters, setOpenLetters] = useState({});
-const galleryRef = useRef(null);
-const [galleryActive, setGalleryActive] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [positions, setPositions] = useState({});
+    const [openLetters, setOpenLetters] = useState({});
+    const galleryRef = useRef(null);
+    const [galleryActive, setGalleryActive] = useState(false);
 
+    const [selectedMenu, setSelectedMenu] = useState(null);
 
-
-  const handleDragStart = (e, index) => {
-    const shiftX = e.clientX - e.currentTarget.getBoundingClientRect().left;
-    const shiftY = e.clientY - e.currentTarget.getBoundingClientRect().top;
-  
-    setTopZIndex((prev) => prev + 1);
-    setPositions((prev) => ({
-      ...prev,
-      [index]: {
-        ...(prev[index] || {}),
-        zIndex: topZIndex + 1,
-      },
-    }));
-  
-    const onMouseMove = (moveEvent) => {
-      const newX = moveEvent.clientX - shiftX;
-      const newY = moveEvent.clientY - shiftY;
-  
+    const handleDragStart = (e, index) => {
+      e.preventDefault(); // Prevent default to avoid text selection during drag
+      const shiftX = e.clientX - e.currentTarget.getBoundingClientRect().left;
+      const shiftY = e.clientY - e.currentTarget.getBoundingClientRect().top;
+    
+      setTopZIndex((prev) => prev + 1);
       setPositions((prev) => ({
         ...prev,
         [index]: {
           ...(prev[index] || {}),
-          left: newX,
-          top: newY,
           zIndex: topZIndex + 1,
         },
       }));
-    };
   
-    const onMouseUp = () => {
-      setDraggedIndex(null);
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
+      const onMouseMove = (moveEvent) => {
+        moveEvent.preventDefault();
+        const newX = moveEvent.clientX - shiftX;
+        const newY = moveEvent.clientY - shiftY;
+    
+        setPositions((prev) => ({
+          ...prev,
+          [index]: {
+            ...(prev[index] || {}),
+            left: newX,
+            top: newY,
+            zIndex: topZIndex + 1,
+          },
+        }));
+      };
   
-    setDraggedIndex(index);
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  };
+      const onMouseUp = () => {
+        setDraggedIndex(null);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+    
+      setDraggedIndex(index);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    };
+
   const handleImageClick = (index) => {
+    // Prevent click events during drag
+    if (draggedIndex === index) return;
+    
     setOpenLetters((prev) => ({
       ...prev,
       [index]: !prev[index],
@@ -144,231 +171,350 @@ const [galleryActive, setGalleryActive] = useState(false);
   
     // Handle play/pause toggle
     const handlePlayPause = () => {
+      if (audioRef.current) {
         if (audioRef.current.paused) {
-            audioRef.current.play();
-            setIsPlaying(true);
-            setShowButton(false);  // Hide the button when audio is playing
+          audioRef.current.play()
+            .then(() => {
+              setIsPlaying(true);
+              setShowButton(false);  // Hide the button when audio is playing
+            })
+            .catch(err => {
+              console.error("Error playing audio:", err);
+            });
         } else {
-            audioRef.current.pause();
-            setIsPlaying(false);
-            setShowButton(true);  // Show the button when audio is paused
+          audioRef.current.pause();
+          setIsPlaying(false);
+          setShowButton(true);  // Show the button when audio is paused
         }
+      }
     };
 
     const handleStart = () => {
-        setStartGame(true); // Start the game when the button is clicked
+      setStartGame(true); // Start the game when the button is clicked
+      // Start playing audio once the game has started
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            setShowButton(false);
+          })
+          .catch(err => {
+            console.error("Error playing audio:", err);
+          });
+      }
     };
 
-    // Click anywhere to show the play/pause button again
     const handleClick = () => {
-        setShowButton(true);  // Always show the button when clicking anywhere on the screen
+      if (startGame && !musicEnded) {
+        setShowButton(true);  // Show the button when clicking anywhere on the screen
+      }
     };
+    const handleMenuSelection = (link) => {
+      const menuOption = link.substring(1); // Remove the "#" from the link
+      setSelectedMenu(menuOption);
+    
+      if (menuOption === 'gallery') {
+        setGalleryActive(true);
+      } else if (menuOption === 'play-again') {
+        // Reset the state to play again
+        setMusicEnded(false);
+        setStartGame(false);
+        setCurrentLine('');
+        setTypedText('');
+        setTypingIndex(0);
+        setCurrentImage(null);
+        setSelectedMenu(null);
+        setGalleryActive(false);
 
-    // Typewriter effect logic
-    useEffect(() => {
-        if (currentLine !== '') {
-            setTypedText('');
-            setTypingIndex(0);
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.pause();
         }
-    }, [currentLine]);
+        setIsPlaying(false);
+      }
+    };
+  // Typewriter effect logic
+  useEffect(() => {
+    if (currentLine !== '') {
+      setTypedText('');
+      setTypingIndex(0);
+    }
+  }, [currentLine]);
 
-    useEffect(() => {
-        if (typingIndex < currentLine.length) {
-            const timeout = setTimeout(() => {
-                setTypedText((prev) => prev + currentLine[typingIndex]);
-                setTypingIndex((prev) => prev + 1);
-            }, 40); // speed of typing
-
-            return () => clearTimeout(timeout);
-        }
+  useEffect(() => {
+    if (typingIndex < currentLine.length) {
+      const timeout = setTimeout(() => {
+        setTypedText((prev) => prev + currentLine[typingIndex]);
+        setTypingIndex((prev) => prev + 1);
+      }, 40); // speed of typing
+  
+        return () => clearTimeout(timeout);
+      }
     }, [typingIndex, currentLine]);
 
     useEffect(() => {
-        if (startGame) {
-            const interval = setInterval(() => {
-                if (audioRef.current) {
-                    const currentTime = audioRef.current.currentTime;
-                    const current = syncedLyrics
-                        .slice()
-                        .reverse()
-                        .find((line) => currentTime >= line.time);
-
-                    if (current && current.text !== currentLine) {
-                        setCurrentLine(current.text);
-
-                        if (current.image) {
-                            setIsFading(true); // Start fade out
-
-                            // Prepare next image
-                            setNextImage(current.image);
-
-                            // After fade out, swap image and fade in
-                            setTimeout(() => {
-                                setCurrentImage(current.image);
-                                setImagePosition(getRandomPosition());
-                                setIsFading(false); // Fade in
-                            }, 500); // match with fade duration
-                        } else {
-                            setCurrentImage(null);
-                            setNextImage(null);
-                        }
-                    }
-                }
-            }, 300);
-
-            return () => clearInterval(interval);
+      if (startGame) {
+        const interval = setInterval(() => {
+          if (audioRef.current) {
+            const currentTime = audioRef.current.currentTime;
+            const current = syncedLyrics
+              .slice()
+              .reverse()
+              .find((line) => currentTime >= line.time);
+  
+            if (current && current.text !== currentLine) {
+              setCurrentLine(current.text);
+  
+              if (current.image) {
+                setIsFading(true); // Start fade out
+  
+                // Prepare next image
+                setNextImage(current.image);  
+              // After fade out, swap image and fade in
+              setTimeout(() => {
+                setCurrentImage(current.image);
+                setImagePosition(getRandomPosition());
+                setIsFading(false); // Fade in
+              }, 500); // match with fade duration
+            } else {
+              setCurrentImage(null);
+              setNextImage(null);
+            }
+          }
         }
-    }, [currentLine, startGame]);
+      }, 300);
 
-    // Handle music end
-    const handleMusicEnd = () => {
-        setMusicEnded(true); // Trigger bouquet effect when music ends
+      return () => clearInterval(interval);
+    }
+  }, [currentLine, startGame]);
+
+  const handleMusicEnd = () => {
+    setMusicEnded(true);
+  };
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.addEventListener('ended', handleMusicEnd);
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleMusicEnd);
+      }
+    };
+  }, []);
+  // Add custom menu link handler
+  const CustomFlowingMenu = () => (
+    <FlowingMenu 
+      items={menuItems.map(item => ({
+        ...item,
+        link: item.link,
+        onClick: () => handleMenuSelection(item.link)
+      }))} 
+    />
+  );
+  // Modify the menu component to include onClick handler
+  useEffect(() => {
+    const handleMenuClick = (e) => {
+      const menuLinks = document.querySelectorAll('.menu__item-link');
+      menuLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          handleMenuSelection(href);
+        });
+      });
     };
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.addEventListener('ended', handleMusicEnd);
-        }
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.removeEventListener('ended', handleMusicEnd);
-            }
-        };
-    }, []);
-    useEffect(() => {
-      if (musicEnded) {
-          setGalleryActive(true);
-      }
+    if (musicEnded) {
+      // Add click handlers after the menu is rendered
+      setTimeout(handleMenuClick, 100);
+    }
   }, [musicEnded]);
   
+  const renderGallery = () => (
+    <div className="gallery bouquet" ref={galleryRef}>
+      {[...Array(20)].map((_, i) => {
+        const radius = 300;
+        const angle = (i / 19) * Math.PI;
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+        const rotate = angle * (180 / Math.PI) - 90;
 
-    return (
-      <div className="container" onClick={() => setShowButton(true)}>
-              <Particles particleCount={300} particleColors={['#ffffff', '#ffb6c1', '#add8e6']} speed={0.15} />
+        const position = positions[i];
+        const photoZ = position?.zIndex ?? i;
 
-            <div className="wind-background"></div>
-            {!startGame ? (
-                <>
-                    <div
-                        className="polaroidImage"
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'rotate(0deg)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'rotate(-5deg)'}
-                    >
-                        <img src="/image/peter.jpg" alt="Power Icon" className="image" />
-                        <p className="caption">Creator</p>
-                    </div>
-                    <button onClick={handleStart} className="startButton">
-                        Press Me :3
-                    </button>
-                </>
-            ) : musicEnded ? (
-<div className="gallery bouquet" ref={galleryRef}>
-{[...Array(20)].map((_, i) => {
-    
-    const radius = 300;
-    const angle = (i / 19) * Math.PI;
-    const x = radius * Math.cos(angle);
-    const y = radius * Math.sin(angle);
-    const rotate = angle * (180 / Math.PI) - 90;
-
-    const position = positions[i];
-    const photoZ = positions[i]?.zIndex ?? i;
-
-    const style = position?.left !== undefined
-      ? {
-          position: 'absolute',
-          left: `${position.left}px`,
-          top: `${position.top}px`,
-          transform: `rotate(${rotate}deg)`,
-          zIndex: photoZ,
-          cursor: 'grab',
-        }
-      : {
-          position: 'absolute',
-          top: '10%',
-          left: '50%',
-          transform: `translate(${x}px, ${-y}px) rotate(${rotate}deg)`,
-          zIndex: photoZ,
-          cursor: 'grab',
-        };
+        const style = position?.left !== undefined
+          ? {
+              position: 'absolute',
+              left: `${position.left}px`,
+              top: `${position.top}px`,
+              transform: `rotate(${rotate}deg)`,
+              zIndex: photoZ,
+              cursor: 'grab',
+            }
+          : {
+              position: 'absolute',
+              top: '10%',
+              left: '50%',
+              transform: `translate(${x}px, ${-y}px) rotate(${rotate}deg)`,
+              zIndex: photoZ,
+              cursor: 'grab',
+            };
 
         return (
-            <div
-              key={i}
-              className="polaroidImage bloom"
-              style={{
-                ...style,
-                '--angle': `${rotate}deg`,
-              }}
-              onMouseDown={(e) => handleDragStart(e, i)}
-              onClick={() => handleImageClick(i)}
-            >
-              <img
-                src={`/img/img/placeholder-${i}.jpg`}
-                alt={`Memory ${i}`}
-                className="polaroidImageContent"
-                draggable="false"
-              />
-              {openLetters[i] && (
-                <div className="letterMessage">
-                  {photoMessages[i]}
-                </div>
-              )}
-            </div>
-          );
-          
-  })}
-</div>
-
-            ) : (
-                <div className="lyrics">
-                    <p>
-                        {typedText}
-                        <span style={{ borderRight: '2px solid #eee', animation: 'blink 1s step-end infinite' }}>&nbsp;</span>
-                    </p>
-                    {currentImage && (
-                        <div
-                            className="polaroidImage"
-                            style={{
-                                position: 'absolute',
-                                ...imagePosition,
-                                opacity: isFading ? 0 : 1,
-                                pointerEvents: 'none',
-                            }}
-                        >
-                            <img src={currentImage} alt="Lyric related" className="polaroidImageContent" />
-                        </div>
-                    )}
-                </div>
+          <div
+            key={i}
+            className="polaroidImage bloom"
+            style={{
+              ...style,
+              '--angle': `${rotate}deg`,
+            }}
+            onMouseDown={(e) => handleDragStart(e, i)}
+            onClick={() => handleImageClick(i)}
+          >
+            <img
+              src={`/img/img/placeholder-${i}.jpg`}
+              alt={`Memory ${i}`}
+              className="polaroidImageContent"
+              draggable="false"
+            />
+            {openLetters[i] && (
+              <div className="letterMessage">
+                {photoMessages[i] || "I'm here for you"}
+              </div>
             )}
+          </div>
+        );
+      })}
+      
+      <button 
+        onClick={() => setSelectedMenu(null)} 
+        className="backButton"
+      >
+        Back to Menu
+      </button>
+    </div>
+  );
 
-{startGame && showButton && !musicEnded && !galleryActive && (
-    <button onClick={handlePlayPause} className="playButton">
-        {isPlaying ? 'Pause' : 'Play'}
-    </button>
-)}
+  const renderCredits = () => (
+    <div className="credits-container">
+      <h2>Credits</h2>
+      <div className="credits-content">
+        <p><strong>Music:</strong> Nina by Pamungkas</p>
+        <p><strong>Development:</strong> Created with React</p>
+        <p><strong>Special Thanks:</strong> To you, for being amazing</p>
+      </div>
+      <button 
+        onClick={() => setSelectedMenu(null)} 
+        className="backButton"
+      >
+        Back to Menu
+      </button>
+    </div>
+  );
 
+  const renderAbout = () => (
+    <div className="about-container">
+      <h2>About This Project</h2>
+      <div className="about-content">
+        <p>This interactive lyric player was created as a special gift for you.</p>
+        <p>It combines music, memories, and interactive elements to create a unique experience.</p>
+        <p>Every photo and detail was selected with care to make this moment special.</p>
+      </div>
+      <button 
+        onClick={() => setSelectedMenu(null)} 
+        className="backButton"
+      >
+        Back to Menu
+      </button>
+    </div>
+  );
 
-            <audio ref={audioRef}>
-                <source src={ninaAudio} type="audio/mp3" />
-                Your browser does not support the audio element.
-            </audio>
+  // Render the appropriate view based on selectedMenu
+  const renderMenuContent = () => {
+    switch (selectedMenu) {
+      case 'gallery':
+        return renderGallery();
+      case 'credits':
+        return renderCredits();
+      case 'about':
+        return renderAbout();
+      default:
+        return <CustomFlowingMenu />;
+    }
+  };
+
+  return (
+    <div className="container" onClick={handleClick}>
+      <Particles particleCount={300} particleColors={['#ffffff', '#ffb6c1', '#add8e6']} speed={0.15} />
+
+      <div className="wind-background"></div>
+      {!startGame ? (
+        // Initial start screen
+        <>
+          <div
+            className="polaroidImage"
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'rotate(0deg)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'rotate(-5deg)'}
+          >
+            <img src="/image/peter.jpg" alt="Creator" className="image" />
+            <p className="caption">Creator</p>
+          </div>
+          <button onClick={handleStart} className="startButton">
+            Press Me :3
+          </button>
+        </>
+      ) : musicEnded ? (
+        // End screen with menu or selected menu item
+        selectedMenu ? renderMenuContent() : <CustomFlowingMenu />
+      ) : (
+        // Lyrics display during playback
+        <div className="lyrics">
+          <p>
+            {typedText}
+            <span style={{ borderRight: '2px solid #eee', animation: 'blink 1s step-end infinite' }}>&nbsp;</span>
+          </p>
+          {currentImage && (
+            <div
+              className="polaroidImage"
+              style={{
+                position: 'absolute',
+                ...imagePosition,
+                opacity: isFading ? 0 : 1,
+                pointerEvents: 'none',
+              }}
+            >
+              <img src={currentImage} alt="Lyric related" className="polaroidImageContent" />
+            </div>
+          )}
         </div>
-    );
-    
+      )}
+
+      {startGame && showButton && !musicEnded && !selectedMenu && (
+        <button onClick={handlePlayPause} className="playButton">
+          {isPlaying ? 'Pause' : 'Play'}
+        </button>
+      )}
+
+      <audio ref={audioRef} preload="auto">
+        <source src={ninaAudio} type="audio/mp3" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  );
 };
 
 // Function to generate random positions
 function getRandomPosition() {
-    const positions = [
-        { top: '10%', left: '10%' },
-        { top: '10%', right: '10%' },
-        { bottom: '10%', left: '10%' },
-        { bottom: '10%', right: '10%' },
-    ];
+  const positions = [
+    { top: '10%', left: '10%' },
+    { top: '10%', right: '10%' },
+    { bottom: '10%', left: '10%' },
+    { bottom: '10%', right: '10%' },
+  ];
 
-    return positions[Math.floor(Math.random() * positions.length)];
+  return positions[Math.floor(Math.random() * positions.length)];
 }
 
 export default TypewriterLyrics;
