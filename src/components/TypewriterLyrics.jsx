@@ -75,7 +75,17 @@ const photoMessages = [
     "Big dreams await 🌠",
     "ILY"
   ];
-  
+  const lyricSections = [
+    { time: 2, name: "Intro" },
+    { time: 21, name: "Verse 1" },
+    { time: 64, name: "Chorus 1" },
+    { time: 85, name: "Bridge 1" },
+    { time: 122, name: "Verse 2" },
+    { time: 165, name: "Chorus 2" },
+    { time: 215, name: "Bridge 2" },
+    { time: 230, name: "Final Chorus" },
+    { time: 254, name: "Outro" }
+  ];
   
   const menuItems = [
     {
@@ -120,7 +130,8 @@ const photoMessages = [
     const galleryRef = useRef(null);
     const [galleryActive, setGalleryActive] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
-  
+    const [showSkipMenu, setShowSkipMenu] = useState(false);
+
     // Handle play/pause toggle and other user interaction functions
     const handlePlayPause = () => {
       if (audioRef.current) {
@@ -128,7 +139,7 @@ const photoMessages = [
           audioRef.current.play()
             .then(() => {
               setIsPlaying(true);
-              setShowButton(false);  // Hide the button when audio is playing
+              setShowButton(false);
             })
             .catch(err => {
               console.error("Error playing audio:", err);
@@ -136,11 +147,21 @@ const photoMessages = [
         } else {
           audioRef.current.pause();
           setIsPlaying(false);
-          setShowButton(true);  // Show the button when audio is paused
+          setShowButton(true);
         }
       }
     };
-  
+    const toggleSkipMenu = (e) => {
+      e.stopPropagation(); // Prevent container click handler from firing
+      setShowSkipMenu(!showSkipMenu);
+    };
+
+    const skipToSection = (time) => {
+      if (audioRef.current) {
+        audioRef.current.currentTime = time;
+        setShowSkipMenu(false);
+      }
+    };
     const handleStart = () => {
       setStartGame(true); // Start the game when the button is clicked
       // Start playing audio once the game has started
@@ -158,7 +179,11 @@ const photoMessages = [
   
     const handleClick = () => {
       if (startGame && !musicEnded) {
-        setShowButton(true);  // Show the button when clicking anywhere on the screen
+        setShowButton(true);
+        // Close skip menu when clicking elsewhere
+        if (showSkipMenu) {
+          setShowSkipMenu(false);
+        }
       }
     };
   
@@ -523,11 +548,37 @@ const photoMessages = [
           </div>
         )}
   
-        {startGame && showButton && !musicEnded && !selectedMenu && (
+  {startGame && showButton && !musicEnded && !selectedMenu && (
+        <div className="controls-container">
           <button onClick={handlePlayPause} className="playButton">
             {isPlaying ? 'Pause' : 'Play'}
           </button>
-        )}
+          
+          {/* Skip Button with FlowingMenu */}
+          <div className="skip-container">
+            <button onClick={toggleSkipMenu} className="skipButton">
+              Skip
+            </button>
+            
+            {showSkipMenu && (
+              <div className="flowingSkipMenu">
+                <h3>Jump to Section</h3>
+                <div className="skip-menu-sections">
+                  {lyricSections.map((section, index) => (
+                    <div 
+                      key={index} 
+                      className="skip-menu-item"
+                      onClick={() => skipToSection(section.time)}
+                    >
+                      {section.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
   
         <audio ref={audioRef} preload="auto">
           <source src={ninaAudio} type="audio/mp3" />

@@ -401,3 +401,139 @@
     z-index: 0;
     pointer-events: none;
   }
+/* Add these styles to your style.css file */
+
+/* Controls Container */
+.controls-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+  }
+  
+  /* Style for Skip Button - matching your existing playButton */
+  .skipButton {
+    background-color: #ffc0cb; /* Pink color to match your theme */
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .skipButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .skipButton:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Skip Container */
+  .skip-container {
+    position: relative;
+  }
+  
+  /* Flowing Skip Menu */
+  .flowingSkipMenu {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    color: #333;
+    animation: menu-appear 0.3s ease;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .flowingSkipMenu h3 {
+    margin: 0 0 12px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #222;
+    letter-spacing: 0.5px;
+  }
+  
+  .skip-menu-sections {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .skip-menu-item {
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .skip-menu-item:hover {
+    background-color: rgba(255, 192, 203, 0.2); /* Light pink background on hover */
+    transform: translateX(5px);
+  }
+  
+  .skip-menu-item:active {
+    background-color: rgba(255, 192, 203, 0.4); /* Darker pink on active */
+  }
+  
+  /* Animation for menu appearance */
+  @keyframes menu-appear {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  
+  /* Responsive styles for the skip button and menu */
+  @media only screen and (max-width: 480px) {
+    .controls-container {
+      flex-direction: row;
+      bottom: 15px;
+      gap: 10px;
+    }
+    
+    .skipButton {
+      font-size: 0.8rem;
+      padding: 0.7rem 1.2rem;
+    }
+    
+    .flowingSkipMenu {
+      width: 180px;
+      padding: 10px;
+    }
+    
+    .flowingSkipMenu h3 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    
+    .skip-menu-item {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+  }
