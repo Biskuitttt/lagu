@@ -3,6 +3,7 @@ import '../style.css';
 import ninaAudio from '../assets/music/nina.mp3';
 import Particles from './Particles'; // Import Particles component
 import FlowingMenu from './FlowingMenu'; // Import FlowingMenu component
+import MessagePostcards from './MessagePostcards';
 
 const syncedLyrics = [
   { time: 2, text: "This is made for you"  },
@@ -132,6 +133,19 @@ const photoMessages = [
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [showSkipMenu, setShowSkipMenu] = useState(false);
 
+    const handleBackToMenu = () => {
+      setSelectedMenu(null);
+      setTimeout(() => {
+        document.querySelectorAll('.menu__item-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            handleMenuSelection(href);
+          });
+        });
+      }, 50); // Reattach after menu re-renders
+    };
+    
     // Handle play/pause toggle and other user interaction functions
     const handlePlayPause = () => {
       if (audioRef.current) {
@@ -196,10 +210,10 @@ const photoMessages = [
         setGalleryActive(true);
       } 
       else if (menuOption === 'play-again') {
-        // Reset game state and go back to lyrics page
+        // Reset game state and restart audio
         setMusicEnded(false);
-        setStartGame(true); // Keep the game started, just restart it
-        setShowButton(true);
+        setStartGame(true);
+        setShowButton(false); // Hide the button initially
         setCurrentLine('');
         setTypedText('');
         setTypingIndex(0);
@@ -208,17 +222,16 @@ const photoMessages = [
         setGalleryActive(false);
         
         // Reset audio to beginning
-        if (audioRef.current) {
-          audioRef.current.currentTime = 0;
+        setTimeout(() => {
           audioRef.current.play()
             .then(() => {
               setIsPlaying(true);
-              setShowButton(false);
             })
             .catch(err => {
               console.error("Error playing audio:", err);
+              setShowButton(true); // Show button if play fails
             });
-        }
+        }, 50);
       }
       else if (menuOption === 'about') {
         // Show "A Message From ?" page
@@ -444,7 +457,8 @@ const photoMessages = [
         })}
         
         <button 
-          onClick={() => setSelectedMenu(null)} 
+          onClick={handleBackToMenu}
+ 
           className="backButton"
         >
           Back to Menu
@@ -461,7 +475,8 @@ const photoMessages = [
           <p><strong>Special Thanks:</strong> To you, for being amazing</p>
         </div>
         <button 
-          onClick={() => setSelectedMenu(null)} 
+          onClick={handleBackToMenu}
+ 
           className="backButton"
         >
           Back to Menu
@@ -472,19 +487,9 @@ const photoMessages = [
     const renderAbout = () => (
       <div className="about-container">
         <h2>A Message From ?</h2>
-        <div className="about-content">
-          <p>Hey there! This is a little something I put together just for you.</p>
-          <p>Every image, every line, and every moment in this experience was chosen with you in mind.</p>
-          <p>No matter the distance between us, you're always close to my heart.</p>
-          <p>I hope this brings a smile to your face whenever you need it most.</p>
-          <p>Always remember how special you are to me.</p>
-        </div>
-        <button 
-          onClick={() => setSelectedMenu(null)} 
-          className="backButton"
-        >
-          Back to Menu
-        </button>
+        <MessagePostcards 
+          onClose={() => setSelectedMenu(null)} 
+        />
       </div>
     );
   

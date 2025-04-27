@@ -537,3 +537,217 @@
       font-size: 0.8rem;
     }
   }
+/* Mail-style Postcard Container */
+.mail-postcard {
+  width: 350px;
+  height: 230px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  perspective: 1000px;
+  position: absolute;
+  cursor: grab;
+  opacity: 0;
+  transform: translateY(50px) rotate(0deg);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  z-index: 100;
+  user-select: none;
+}
+
+.mail-postcard.slide-in {
+  opacity: 1;
+  transform: translateY(0) rotate(var(--rotation, 0deg));
+  animation: card-entrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.mail-postcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.mail-postcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.mail-postcard-front, .mail-postcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* Front side (address side) */
+.mail-postcard-front {
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-border {
+  border: 10px solid transparent;
+  border-image: repeating-linear-gradient(-45deg, #e74c3c, #e74c3c 10px, #3498db 10px, #3498db 20px) 10;
+  height: calc(100% - 20px);
+  width: calc(100% - 20px);
+  padding: 5px;
+}
+
+.mail-content {
+  display: flex;
+  height: 100%;
+}
+
+.mail-left-section {
+  width: 50%;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-section {
+  margin-bottom: 15px;
+}
+
+.date-label {
+  border: 1px solid #f1c40f;
+  padding: 5px;
+  font-size: 0.8rem;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.date-instruction {
+  background-color: #f1c40f;
+  padding: 5px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  margin-top: 5px;
+  width: 80%;
+}
+
+.message-area {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #333;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.mail-right-section {
+  width: 50%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stamp-area {
+  align-self: flex-end;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stamp-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.address-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.address-line {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 0;
+  margin-bottom: 5px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.flip-instruction {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: #888;
+  text-align: center;
+  padding: 5px 0;
+}
+
+/* Back side (photo side) */
+.mail-postcard-back {
+  transform: rotateY(180deg);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-postcard-image {
+  width: 100%;
+  height: calc(100% - 30px);
+  object-fit: cover;
+}
+
+.back-caption {
+  height: 30px;
+  padding: 5px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  color: #333;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+}
+
+/* Card entrance animation */
+@keyframes card-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(80px) scale(0.8) rotate(var(--rotation));
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--rotation));
+  }
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 480px) {
+  .mail-postcard {
+    width: 280px;
+    height: 180px;
+  }
+  
+  .mail-border {
+    border-width: 8px;
+  }
+  
+  .date-label, .date-instruction {
+    font-size: 0.7rem;
+    padding: 3px;
+  }
+  
+  .message-area, .address-line {
+    font-size: 0.75rem;
+  }
+  
+  .back-caption {
+    font-size: 0.8rem;
+  }
+}
