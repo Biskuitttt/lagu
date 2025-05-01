@@ -182,26 +182,28 @@
 
 /* Pixel art button style */
 .playButton {
-    background-color: #61dafb;
-    color: #111;
-    font-family: 'Press Start 2P', cursive; /* Pixel-style font */
-    font-size: 1.5rem;
+    background-color: #ffc0cb; /* Pink color to match your theme */
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
     padding: 1rem 2rem;
-    border: 2px solid #444;
-    border-radius: 5px;
+    border: none;
+    border-radius: 999px;
     cursor: pointer;
-    margin-top: 20px;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .playButton:hover {
-    background-color: #4fa3d1;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 .playButton:active {
-    background-color: #3d8cb4;
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Start button */

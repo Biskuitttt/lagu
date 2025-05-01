@@ -127,6 +127,7 @@ const photoMessages = [
     const [galleryActive, setGalleryActive] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [showSkipMenu, setShowSkipMenu] = useState(false);
+    const [isPlayAgainClicked, setIsPlayAgainClicked] = useState(false);
 
     const handleBackToMenu = () => {
       setSelectedMenu(null);
@@ -215,6 +216,9 @@ const photoMessages = [
         setCurrentImage(null);
         setSelectedMenu(null);
         setGalleryActive(false);
+
+        // Set the state to show the "Skip" button
+        setIsPlayAgainClicked(true);
         
         // Reset audio to beginning
         setTimeout(() => {
@@ -532,7 +536,7 @@ const photoMessages = [
           </div>
         )}
   
-  {startGame && showButton && !musicEnded && !selectedMenu && (
+  {startGame && showButton && !musicEnded && !selectedMenu && isPlayAgainClicked && (
         <div className="controls-container">
           <button onClick={handlePlayPause} className="playButton">
             {isPlaying ? 'Pause' : 'Play'}
