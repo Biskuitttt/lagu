@@ -92,22 +92,17 @@ const photoMessages = [
     {
       text: "Photo Gallery",
       link: "#gallery",
-      image: "/image/gallery-icon.jpg"
+      image: "/image/meh.jpg"
     },
     {
       text: "Credits",
       link: "#credits",
-      image: "/image/credits-icon.jpg"
+      image: "/image/cry.jpg"
     },
     {
       text: "Play Again",
       link: "#play-again",
-      image: "/image/play-icon.jpg"
-    },
-    {
-      text: "A Message From ?",
-      link: "#about",
-      image: "/image/about-icon.jpg"
+      image: "/image/jongkok2.jpg"
     }
   ];
   
@@ -232,10 +227,6 @@ const photoMessages = [
               setShowButton(true); // Show button if play fails
             });
         }, 50);
-      }
-      else if (menuOption === 'about') {
-        // Show "A Message From ?" page
-        setSelectedMenu('about');
       }
       else if (menuOption === 'credits') {
         // Show credits page
@@ -483,16 +474,6 @@ const photoMessages = [
         </button>
       </div>
     );
-  
-    const renderAbout = () => (
-      <div className="about-container">
-        <h2>A Message From ?</h2>
-        <MessagePostcards 
-          onClose={() => setSelectedMenu(null)} 
-        />
-      </div>
-    );
-  
     // Render the appropriate view based on selectedMenu
     const renderMenuContent = () => {
       switch (selectedMenu) {
@@ -500,8 +481,6 @@ const photoMessages = [
           return renderGallery();
         case 'credits':
           return renderCredits();
-        case 'about':
-          return renderAbout();
         default:
           return <CustomFlowingMenu />;
       }
